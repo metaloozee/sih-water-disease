@@ -66,14 +66,40 @@ export const getLatestDiseaseRisk = query({
 });
 
 export const getActiveAlerts = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db
+  args: { 
+    page: v.optional(v.number()),
+    pageSize: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    const page = args.page || 1;
+    const pageSize = args.pageSize || 10;
+    const offset = (page - 1) * pageSize;
+
+    // Get total count for pagination
+    const allAlerts = await ctx.db
       .query("alerts")
       .withIndex("by_acknowledged")
       .filter((q) => q.eq(q.field("acknowledged"), false))
       .order("desc")
-      .take(10);
+      .collect();
+    
+    const totalCount = allAlerts.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    // Get paginated results
+    const alerts = allAlerts.slice(offset, offset + pageSize);
+
+    return {
+      alerts,
+      pagination: {
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    };
   },
 });
 

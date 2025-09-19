@@ -7,7 +7,8 @@ export function WaterMonitoringDashboard() {
   const waterQuality = useQuery(api.waterMonitoring.getLatestWaterQuality);
   const diseaseRisk = useQuery(api.waterMonitoring.getLatestDiseaseRisk);
   const alerts = useQuery(api.waterMonitoring.getActiveAlerts);
-  const recentReadings = useQuery(api.waterMonitoring.getRecentReadings, { hours: 24 });
+  // Fetch last 7 days of readings for high-level daily overview
+  const recentReadings = useQuery(api.waterMonitoring.getRecentReadings, { hours: 24 * 7 });
   
   const simulateReading = useMutation(api.waterMonitoring.simulateWaterQualityReading);
   const acknowledgeAlert = useMutation(api.waterMonitoring.acknowledgeAlert);
@@ -57,16 +58,10 @@ export function WaterMonitoringDashboard() {
 
   if (!waterQuality || !diseaseRisk) {
     return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Initializing Water Monitoring System</h2>
-          <button
-            onClick={handleManualSimulation}
-            disabled={isSimulating}
-            className="px-6 py-3 rounded-xl text-white bg-sky-600 hover:bg-sky-700 disabled:opacity-50 shadow"
-          >
-            {isSimulating ? "Generating..." : "Generate Initial Reading"}
-          </button>
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-sky-200 border-t-sky-600 animate-spin"></div>
+          <div className="text-slate-700">Initializing water monitoring…</div>
         </div>
       </div>
     );
@@ -101,7 +96,7 @@ export function WaterMonitoringDashboard() {
         {/* Disease Risk Assessment */}
         <DiseaseRiskPanel diseaseRisk={diseaseRisk} />
 
-        {/* Recent Trends */}
+        {/* Trends - show high-level overview over previous days */}
         {recentReadings && recentReadings.length > 0 && (
           <TrendsPanel readings={recentReadings} />
         )}
@@ -296,77 +291,87 @@ function DiseaseRiskCard({ disease }: { disease: any }) {
 }
 
 function TrendsPanel({ readings }: { readings: any[] }) {
-  const last6Hours = readings.slice(0, 12); // Assuming readings every 30 minutes
+  // Aggregate to daily statistics (min/avg/max) for previous days
+  const byDay = readings.reduce<Record<string, { ph: number[]; turbidity: number[] }>>((acc, r: any) => {
+    const day = new Date(r.timestamp).toISOString().slice(0, 10);
+    if (!acc[day]) acc[day] = { ph: [], turbidity: [] };
+    acc[day].ph.push(r.ph);
+    acc[day].turbidity.push(r.turbidity);
+    return acc;
+  }, {});
+
+  const days = Object.keys(byDay)
+    .sort((a, b) => (a < b ? 1 : -1)) // newest first
+    .slice(0, 7) // last up to 7 days
+    .reverse(); // display oldest to newest on chart
+
+  const phDaily = days.map((d) => {
+    const arr = byDay[d].ph;
+    const avg = arr.reduce((s, v) => s + v, 0) / arr.length;
+    return { time: d, min: Math.min(...arr), avg, max: Math.max(...arr) };
+  });
+  const turbidityDaily = days.map((d) => {
+    const arr = byDay[d].turbidity;
+    const avg = arr.reduce((s, v) => s + v, 0) / arr.length;
+    return { time: d, min: Math.min(...arr), avg, max: Math.max(...arr) };
+  });
 
   return (
     <div className="rounded-2xl p-6 bg-white/70 backdrop-blur border border-slate-200 shadow-sm">
-      <h3 className="text-lg font-semibold text-slate-900 mb-6">Recent Trends (Last 6 Hours)</h3>
+      <h3 className="text-lg font-semibold text-slate-900 mb-6">Trends Overview (Previous Days)</h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TrendChart
-          title="pH Levels"
-          data={last6Hours.map(r => ({ time: r.timestamp, value: r.ph }))}
-          color="blue"
-          unit=""
-        />
-        <TrendChart
-          title="Turbidity"
-          data={last6Hours.map(r => ({ time: r.timestamp, value: r.turbidity }))}
-          color="cyan"
-          unit="NTU"
-        />
+        <DailyOverviewChart title="pH Levels" data={phDaily} color="blue" unit="" />
+        <DailyOverviewChart title="Turbidity" data={turbidityDaily} color="cyan" unit="NTU" />
       </div>
     </div>
   );
 }
 
-function TrendChart({ title, data, color, unit }: { title: string, data: any[], color: string, unit: string }) {
+function DailyOverviewChart({ title, data, color, unit }: { title: string, data: { time: string; min: number; avg: number; max: number }[], color: string, unit: string }) {
   if (data.length === 0) return null;
 
-  const maxValue = Math.max(...data.map(d => d.value));
-  const minValue = Math.min(...data.map(d => d.value));
+  const allValues = data.flatMap(d => [d.min, d.avg, d.max]);
+  const maxValue = Math.max(...allValues);
+  const minValue = Math.min(...allValues);
   const range = maxValue - minValue || 1;
 
-  // Use stable id to avoid duplicate ids when multiple charts have same title
   const gradientId = `grad-${title.replace(/\s+/g, "-").toLowerCase()}`;
 
   return (
     <div>
       <h4 className="font-medium text-slate-900 mb-3">{title}</h4>
-      <div className="relative h-32 rounded-xl p-4 border border-slate-200 bg-white">
-        <svg className="w-full h-full" viewBox="0 0 300 100">
+      <div className="relative h-40 rounded-xl p-4 border border-slate-200 bg-white">
+        <svg className="w-full h-full" viewBox="0 0 320 120">
           <defs>
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor={color === "blue" ? "#0284c7" : "#06b6d4"} />
               <stop offset="100%" stopColor={color === "blue" ? "#0ea5e9" : "#67e8f9"} />
             </linearGradient>
           </defs>
-          <polyline
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth="2.5"
-            points={data.map((point, index) => {
-              const x = (index / (data.length - 1)) * 280 + 10;
-              const y = 90 - ((point.value - minValue) / range) * 80;
-              return `${x},${y}`;
-            }).join(" ")}
-          />
           {data.map((point, index) => {
-            const x = (index / (data.length - 1)) * 280 + 10;
-            const y = 90 - ((point.value - minValue) / range) * 80;
+            const x = (index / (data.length - 1 || 1)) * 300 + 10;
+            const yMin = 110 - ((point.min - minValue) / range) * 100;
+            const yAvg = 110 - ((point.avg - minValue) / range) * 100;
+            const yMax = 110 - ((point.max - minValue) / range) * 100;
             return (
-              <circle
-                key={index}
-                cx={x}
-                cy={y}
-                r="3"
-                fill={color === "blue" ? "#0284c7" : "#06b6d4"}
-              />
+              <g key={index}>
+                <line x1={x} y1={yMin} x2={x} y2={yMax} stroke={`url(#${gradientId})`} strokeWidth="3" />
+                <circle cx={x} cy={yAvg} r="4" fill={color === "blue" ? "#0284c7" : "#06b6d4"} />
+              </g>
             );
           })}
         </svg>
-        <div className="absolute top-2 right-2 text-sm text-slate-700">
-          Latest: {data[0]?.value.toFixed(2)} {unit}
-        </div>
+        <div className="absolute top-2 right-2 text-xs text-slate-700">Daily min–avg–max {unit}</div>
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-700">
+        {data.map((d) => (
+          <div key={d.time} className="rounded bg-slate-50 border border-slate-200 p-2">
+            <div className="font-medium">{d.time}</div>
+            <div>Min: {d.min.toFixed(2)} {unit}</div>
+            <div>Avg: {d.avg.toFixed(2)} {unit}</div>
+            <div>Max: {d.max.toFixed(2)} {unit}</div>
+          </div>
+        ))}
       </div>
     </div>
   );

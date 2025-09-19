@@ -11,9 +11,6 @@ export function Sidebar({ active = "dashboard", onNavigate }: { active?: string;
     () => [
       { label: "Dashboard", icon: "🏠", active: active === "dashboard" },
       { label: "Alerts", icon: "🔔", active: active === "alerts" },
-      { label: "Sensors", icon: "📡" },
-      { label: "Trends", icon: "📈" },
-      { label: "Settings", icon: "⚙️" },
     ],
     [active]
   );
