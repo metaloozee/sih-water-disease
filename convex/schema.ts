@@ -1,6 +1,6 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
 
 const applicationTables = {
   waterQualityReadings: defineTable({
@@ -18,26 +18,46 @@ const applicationTables = {
   diseaseRiskPredictions: defineTable({
     timestamp: v.number(),
     cholera: v.object({
-      riskLevel: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      riskLevel: v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high")
+      ),
       probability: v.number(),
       confidence: v.number(),
     }),
     typhoid: v.object({
-      riskLevel: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      riskLevel: v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high")
+      ),
       probability: v.number(),
       confidence: v.number(),
     }),
     hepatitisA: v.object({
-      riskLevel: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      riskLevel: v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high")
+      ),
       probability: v.number(),
       confidence: v.number(),
     }),
     diarrhea: v.object({
-      riskLevel: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      riskLevel: v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high")
+      ),
       probability: v.number(),
       confidence: v.number(),
     }),
-    overallRisk: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    overallRisk: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high")
+    ),
   }).index("by_timestamp", ["timestamp"]),
 
   alerts: defineTable({
@@ -49,7 +69,8 @@ const applicationTables = {
     value: v.optional(v.number()),
     threshold: v.optional(v.number()),
     acknowledged: v.boolean(),
-  }).index("by_timestamp", ["timestamp"])
+  })
+    .index("by_timestamp", ["timestamp"])
     .index("by_acknowledged", ["acknowledged"]),
 };
 

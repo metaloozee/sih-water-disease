@@ -17,7 +17,7 @@ export function SignInForm() {
           setSubmitting(true);
           const formData = new FormData(e.target as HTMLFormElement);
           formData.set("flow", flow);
-          void signIn("password", formData).catch((error) => {
+          signIn("password", formData).catch((error) => {
             let toastTitle = "";
             if (error.message.includes("Invalid password")) {
               toastTitle = "Invalid password. Please try again.";
@@ -34,42 +34,46 @@ export function SignInForm() {
       >
         <input
           className="auth-input-field"
-          type="email"
           name="email"
           placeholder="Email"
           required
+          type="email"
         />
         <input
           className="auth-input-field"
-          type="password"
           name="password"
           placeholder="Password"
           required
+          type="password"
         />
-        <button className="auth-button" type="submit" disabled={submitting}>
+        <button className="auth-button" disabled={submitting} type="submit">
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
-        <div className="text-center text-sm text-secondary">
+        <div className="text-center text-secondary text-sm">
           <span>
             {flow === "signIn"
               ? "Don't have an account? "
               : "Already have an account? "}
           </span>
           <button
-            type="button"
-            className="text-primary hover:text-primary-hover hover:underline font-medium cursor-pointer"
+            className="cursor-pointer font-medium text-primary hover:text-primary-hover hover:underline"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
+            type="button"
           >
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
           </button>
         </div>
       </form>
-      <div className="flex items-center justify-center my-3">
+      <div className="my-3 flex items-center justify-center">
         <hr className="my-4 grow border-gray-200" />
         <span className="mx-4 text-secondary">or</span>
         <hr className="my-4 grow border-gray-200" />
       </div>
-      <button className="auth-button" onClick={() => void signIn("anonymous")}>
+      <button
+        className="auth-button"
+        onClick={() => signIn("anonymous")}
+        type="button"
+      >
         Sign in anonymously
       </button>
     </div>

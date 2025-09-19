@@ -1,17 +1,25 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { toast } from "sonner";
-import { ScrollArea } from "./ui/scroll-area";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "./ui/pagination";
+/** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
+import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { api } from "../../convex/_generated/api";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./ui/pagination";
+import { ScrollArea } from "./ui/scroll-area";
 
 export function AlertsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5; // Show 5 alerts per page
-  
-  const alertsData = useQuery(api.waterMonitoring.getActiveAlerts, { 
-    page: currentPage, 
-    pageSize 
+
+  const alertsData = useQuery(api.waterMonitoring.getActiveAlerts, {
+    page: currentPage,
+    pageSize,
   });
   const acknowledgeAlert = useMutation(api.waterMonitoring.acknowledgeAlert);
 
@@ -29,39 +37,51 @@ export function AlertsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl p-6 bg-white/70 backdrop-blur border border-slate-200 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Alerts</h2>
-        <p className="text-sm text-slate-700">Review and acknowledge system alerts.</p>
+      <div className="rounded-2xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+        <h2 className="font-semibold text-slate-900 text-xl">Alerts</h2>
+        <p className="text-slate-700 text-sm">
+          Review and acknowledge system alerts.
+        </p>
       </div>
 
-      <div className="rounded-2xl p-6 bg-white/70 backdrop-blur border border-slate-200 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="rounded-2xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur">
+        <div className="mb-4 flex items-center justify-between">
           <div>
             {pagination && (
-              <p className="text-sm text-slate-600">
-                Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, pagination.totalCount)} of {pagination.totalCount} alerts
+              <p className="text-slate-600 text-sm">
+                Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                {Math.min(currentPage * pageSize, pagination.totalCount)} of{" "}
+                {pagination.totalCount} alerts
               </p>
             )}
           </div>
         </div>
-        
+
         {(!alerts || alerts.length === 0) && (
-          <p className="text-sm text-slate-700">No active alerts.</p>
+          <p className="text-slate-700 text-sm">No active alerts.</p>
         )}
-        
-        <ScrollArea className="h-96 mb-4">
+
+        <ScrollArea className="mb-4 h-96">
           <div className="space-y-3 pr-4">
             {alerts?.map((alert) => (
-              <div key={alert._id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div
+                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                key={alert._id}
+              >
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="font-medium text-slate-900">{alert.message}</p>
-                    <p className="text-xs text-slate-700">{new Date(alert.timestamp).toLocaleString()}</p>
+                    <p className="font-medium text-slate-900">
+                      {alert.message}
+                    </p>
+                    <p className="text-slate-700 text-xs">
+                      {new Date(alert.timestamp).toLocaleString()}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
+                      className="rounded-lg bg-sky-600 px-3 py-1.5 text-sm text-white hover:bg-sky-700"
                       onClick={() => handleAcknowledge(alert._id)}
-                      className="px-3 py-1.5 text-sm rounded-lg text-white bg-sky-600 hover:bg-sky-700"
+                      type="button"
                     >
                       Acknowledge
                     </button>
@@ -77,28 +97,45 @@ export function AlertsPage() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    className={!pagination.hasPrev ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  <PaginationPrevious
+                    className={
+                      pagination.hasPrev
+                        ? "cursor-pointer"
+                        : "pointer-events-none opacity-50"
+                    }
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                   />
                 </PaginationItem>
-                
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+
+                {Array.from(
+                  { length: pagination.totalPages },
+                  (_, i) => i + 1
+                ).map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
-                      onClick={() => setCurrentPage(page)}
-                      isActive={page === currentPage}
                       className="cursor-pointer"
+                      isActive={page === currentPage}
+                      onClick={() => setCurrentPage(page)}
                     >
                       {page}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                
+
                 <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
-                    className={!pagination.hasNext ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  <PaginationNext
+                    className={
+                      pagination.hasNext
+                        ? "cursor-pointer"
+                        : "pointer-events-none opacity-50"
+                    }
+                    onClick={() =>
+                      setCurrentPage((prev) =>
+                        Math.min(pagination.totalPages, prev + 1)
+                      )
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -109,5 +146,3 @@ export function AlertsPage() {
     </div>
   );
 }
-
-

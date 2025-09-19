@@ -1,12 +1,13 @@
+/** biome-ignore-all lint/suspicious/noUnknownAtRules: false positive */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --color-light: #F5F7FA;
+  --color-light: #f5f7fa;
   --color-dark: #333333;
-  --color-primary: #4A90E2;
-  --color-primary-hover: #357ABD;
+  --color-primary: #4a90e2;
+  --color-primary-hover: #357abd;
 }
 
 .accent-text {
@@ -46,8 +47,14 @@ body {
 
 /* Smooth animations for data updates */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -56,8 +63,13 @@ body {
 
 /* Status indicator pulse animation */
 @keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .animate-pulse-soft {
