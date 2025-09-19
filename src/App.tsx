@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
-import { AlertsPage } from "@/components/AlertsPage";
+import AlertsPage from "./components/AlertsPage";
 import { Sidebar } from "./components/Sidebar";
 import { WaterMonitoringDashboard } from "./components/WaterMonitoringDashboard";
 
@@ -60,68 +60,61 @@ export default function App() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-sky-50 via-cyan-50 to-white">
-      {/* Background ornaments */}
-      <div className="-top-24 -right-24 pointer-events-none absolute h-72 w-72 rounded-full bg-gradient-to-br from-sky-300 via-cyan-300 to-blue-300 opacity-30 blur-3xl motion-safe:animate-pulse" />
-      <div className="-left-24 pointer-events-none absolute top-1/3 h-80 w-80 rounded-full bg-gradient-to-tr from-blue-200 via-sky-200 to-cyan-200 opacity-40 blur-3xl motion-safe:animate-pulse" />
-
-      <header className="sticky top-0 z-30">
-        <div className="border-white/20 border-b bg-gradient-to-r from-sky-600 via-cyan-600 to-blue-600 text-white backdrop-blur supports-[backdrop-filter]:bg-white/10">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  aria-label="Open navigation"
-                  className="inline-flex items-center justify-center rounded-md p-2 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40 md:hidden"
-                  onClick={handleMobileNavToggle}
-                  type="button"
+    <div className="flex min-h-screen flex-col bg-[#101624] text-white">
+      <header className="sticky top-0 z-30 border-b border-[#232b3e] bg-[#181e2a]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                aria-label="Open navigation"
+                className="inline-flex items-center justify-center rounded-md p-2 hover:bg-[#232b3e] focus:outline-none focus:ring-2 focus:ring-cyan-400/40 md:hidden"
+                onClick={handleMobileNavToggle}
+                type="button"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
+                  <title>Menu</title>
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#232b3e] bg-[#232b3e] shadow-none">
+                <svg
+                  className="h-5 w-5 text-cyan-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <title>Water Monitor Logo</title>
+                  <path
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <title>Menu</title>
-                    <path d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-white/20 shadow">
-                  <svg
-                    className="h-5 w-5 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <title>Water Monitor Logo</title>
-                    <path
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h1 className="font-semibold text-lg sm:text-xl">
-                    Smart Water Monitor
-                  </h1>
-                  <p className="text-white/80 text-xs sm:text-sm">
-                    Village Health System
-                  </p>
-                </div>
+                    strokeWidth={2}
+                  />
+                </svg>
               </div>
-
-              <nav className="hidden items-center gap-2 md:flex">
-                <NavButtons
-                  activePage={activePage}
-                  setActivePage={setActivePage}
-                />
-              </nav>
+              <div>
+                <h1 className="font-bold text-lg sm:text-xl tracking-tight text-cyan-200">
+                  Smart Water Monitor
+                </h1>
+                <p className="text-cyan-400 text-xs sm:text-sm font-medium">
+                  Village Health System
+                </p>
+              </div>
             </div>
+            <nav className="hidden items-center gap-2 md:flex">
+              <NavButtons
+                activePage={activePage}
+                setActivePage={setActivePage}
+              />
+            </nav>
           </div>
         </div>
       </header>
